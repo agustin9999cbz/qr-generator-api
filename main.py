@@ -3,6 +3,9 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 import qrcode
 import qrcode.image.svg
 from io import BytesIO
+import uvicorn
+import webbrowser
+import threading
 
 app = FastAPI(
     title="Generador de QR",
@@ -70,7 +73,7 @@ def generar_qr(
     border: int = Query(4, ge=1, le=10),
     fill_color: str = Query("black"),
     back_color: str = Query("white"),
-    format: str = Query("png", pattern="^(png|svg)$"),  # Use 'pattern' for Pydantic v2+, use 'regex' for v1
+    format: str = Query("png", pattern="^(png|svg)$"),
     download: bool = Query(False)
 ):
     qr = qrcode.QRCode(
@@ -115,3 +118,16 @@ def qr_params():
         "format": {"default": "png", "options": ["png", "svg"]},
         "texto": {"max_length": 500}
     }
+
+
+# ⬇️ Esto hace que se abra el navegador automáticamente
+def abrir_navegador():
+    webbrowser.open("http://127.0.0.1:8000/")
+
+def abrir_navegador_docs():
+    webbrowser.open("http://127.0.0.1:8000/docs")
+
+if __name__ == "__main__":
+    threading.Timer(1.5, abrir_navegador).start()
+    threading.Timer(1.7, abrir_navegador_docs).start()
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
